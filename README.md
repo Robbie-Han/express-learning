@@ -30,6 +30,7 @@
    node day2/app.js
    node day3/app.js
    node day4/app.js
+   node day5/app.js
    ```
 
 ## 学习内容

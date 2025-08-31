@@ -75,7 +75,6 @@ res.redirect('/new-url');
 
 ```javascript
 import express from 'express';
-import multer from 'multer'; // 用于处理文件上传
 
 const app = express();
 
