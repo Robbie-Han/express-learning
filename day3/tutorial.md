@@ -98,16 +98,21 @@ Express 拥有一个庞大的生态系统，有许多优秀的第三方中间件
 - **morgan**: 一个非常流行的 HTTP 请求日志记录器，比我们自己写的要强大得多。
 - **cors**: 用于处理跨域资源共享（CORS）。
 - **helmet**: 通过设置各种 HTTP 头来帮助保护你的应用免受一些众所周知的 Web 漏洞的影响。
+- **express-rate-limit**: 用于限制客户端的请求频率，防止暴力攻击和滥用。
 
-安装 morgan:
+安装这些中间件:
 ```bash
-npm install morgan
+npm install morgan cors helmet express-rate-limit
 ```
 
-#### 示例：使用 morgan
+### 示例：使用这些第三方中间件
+
 ```javascript
 import express from 'express';
-import morgan from 'morgan'; // 引入 morgan
+import morgan from 'morgan';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 const port = 3000;
@@ -115,20 +120,40 @@ const port = 3000;
 // 使用 morgan 中间件，'dev' 是一种预定义的日志格式
 app.use(morgan('dev'));
 
+// 使用 helmet 中间件增强应用安全性
+app.use(helmet());
+
+// 使用 cors 中间件处理跨域资源共享
+app.use(cors());
+
+// 创建一个速率限制中间件
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15分钟
+  max: 100, // 限制每个IP在窗口期内最多100个请求
+  message: "请求过于频繁，请稍后再试！"
+});
+// 应用速率限制中间件到所有请求
+app.use(limiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-  res.send('Hello with Morgan!');
+  res.send('Hello with Morgan, CORS, Helmet and Rate Limiting!');
 });
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 ```
-运行这个应用并发起请求，你会看到 morgan 在控制台输出了彩色的、格式化的日志信息。
 
-## 6. 错误处理中间件
+运行这个应用并发起请求，你会看到：
+1. morgan 在控制台输出了彩色的、格式化的日志信息。
+2. helmet 为响应添加了安全相关的 HTTP 头。
+3. cors 允许跨域请求（在实际应用中可能需要配置具体的源）。
+4. rateLimit 限制了请求频率，如果请求过于频繁会返回错误信息。
+
+## 7. 错误处理中间件
 
 在 Express 中，错误处理有自己专门的中间件。它与其他中间件的定义方式略有不同：它接收四个参数 `(err, req, res, next)`。
 
@@ -192,6 +217,7 @@ app.listen(port, () => {
 - 使用 `app.use()` 来应用一个中间件到所有的请求。
 - 必须调用 `next()` 来传递控制权，除非你想提前结束响应。
 - Express 提供了 `express.json()` 和 `express.urlencoded()` 等内置中间件。
+- 常用的第三方中间件包括 morgan、cors、helmet 和 express-rate-limit。
 - 错误处理中间件有特殊的四个参数 `(err, req, res, next)`，并且应该在最后定义。
 
 在接下来的课程中，我们将不断地使用中间件。请务必花时间消化和练习今天的内容！
